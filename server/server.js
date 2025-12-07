@@ -2,9 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import dotenv from 'dotenv';
-import connectDB from './config/database.js';
-import { config } from './config/env.js';
-import { logger } from './utils/logger.js';
+import mongoose from 'mongoose';
 import { errorHandler } from './middleware/errorHandler.js';
 
 import authRoutes from './routes/auth.routes.js';
@@ -21,11 +19,16 @@ dotenv.config();
 const app = express();
 
 app.use(helmet());
-app.use(cors(config.corsOptions));
+app.use(cors({
+  origin: process.env.CLIENT_URL || 'http://localhost:5173',
+  credentials: true
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-connectDB();
+mongoose.connect(process.env.MONGODB_URI)
+  .then(() => console.log('MongoDB connected'))
+  .catch(err => console.error('MongoDB connection error:', err));
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
@@ -38,10 +41,7 @@ app.use('/api/analytics', analyticsRoutes);
 
 app.use(errorHandler);
 
-app.listen(config.port, () => {
-  logger.info(`Server running on port ${config.port}`, {
-    environment: config.nodeEnv,
-    mongodbUri: config.mongodbUri,
-    clientUrl: config.clientUrl,
-  });
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
