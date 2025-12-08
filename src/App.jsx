@@ -16,6 +16,7 @@ import LeaderboardPage from './components/LeaderboardPage.jsx';
 import AnalyticsPage from './components/AnalyticsPage.jsx';
 import AchievementsPage from './components/AchievementsPage.jsx';
 import Header from './components/Header.jsx';
+import Chatbot from './components/Chatbot.jsx';
 
 function App() {
   const [currentPage, setCurrentPage] = useState('landing');
@@ -254,12 +255,15 @@ function App() {
       )}
 
       {currentPage === 'results' && isAuthenticated && examResults && (
-        <ExamResults 
+        <ExamResults
           results={examResults}
           onRetakeExam={handleRetakeExam}
           onBackToDashboard={goToDashboard}
         />
       )}
+
+      {/* Chatbot - Always visible */}
+      <Chatbot />
     </div>
   );
 }
