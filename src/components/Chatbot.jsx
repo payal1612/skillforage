@@ -22,15 +22,45 @@ export default function Chatbot() {
     setInputValue('');
     setIsLoading(true);
 
-    setTimeout(() => {
-      const botResponse = {
+    try {
+      const response = await fetch('http://localhost:5000/api/chatbot/message', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: userMessage.text,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        const botResponse = {
+          id: Date.now() + 1,
+          type: 'bot',
+          text: data.data.message,
+        };
+        setMessages(prev => [...prev, botResponse]);
+      } else {
+        const errorResponse = {
+          id: Date.now() + 1,
+          type: 'bot',
+          text: 'Sorry, I encountered an error. Please try again.',
+        };
+        setMessages(prev => [...prev, errorResponse]);
+      }
+    } catch (error) {
+      console.error('Chatbot error:', error);
+      const errorResponse = {
         id: Date.now() + 1,
         type: 'bot',
-        text: 'I\'m processing your question. How can I assist you with learning or exams today?'
+        text: 'Sorry, I\'m having trouble connecting. Please make sure the server is running.',
       };
-      setMessages(prev => [...prev, botResponse]);
+      setMessages(prev => [...prev, errorResponse]);
+    } finally {
       setIsLoading(false);
-    }, 500);
+    }
   };
 
   const handleKeyPress = (e) => {
